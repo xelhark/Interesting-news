@@ -1,64 +1,71 @@
 walk(document.body);
 
-function walk(node) 
-{
-	// I stole this function from here:
-	// http://is.gd/mwZp7E
-	
-	var child, next;
+substitutions = {
+    "cloud": "butt",
+    "witnesses": "dudes I know",
+    "allegedly": "kinda probably",
+    "new study": "tumblr post",
+    "rebuild": "avenge",
+    "space": "spaaace",
+    "google glass": "virtual boy",
+    "smartphone": "pokédex",
+    "electric": "atomic",
+    "senator": "Elf Lord",
+    "car": "cat",
+    "election": "eating contest",
+    "congressional leaders": "river spirits",
+    "homeland security": "homestar runner",
+    "could not be reached for comment": "is guilty and everyone knows it"
+}
 
-	switch ( node.nodeType )  
-	{
-		case 1:  // Element
-		case 9:  // Document
-		case 11: // Document fragment
-			child = node.firstChild;
-			while ( child ) 
-			{
-				next = child.nextSibling;
-				walk(child);
-				child = next;
-			}
-			break;
+function walk(node) {
+    // I stole this function from here:
+    // http://is.gd/mwZp7E
 
-		case 3: // Text node
-            if(node.parentElement.tagName.toLowerCase() != "script") {
+    var child, next;
+
+    switch (node.nodeType) {
+        case 1:  // Element
+        case 9:  // Document
+        case 11: // Document fragment
+            child = node.firstChild;
+            while (child) {
+                next = child.nextSibling;
+                walk(child);
+                child = next;
+            }
+            break;
+
+        case 3: // Text node
+            if (node.parentElement.tagName.toLowerCase() != "script") {
                 handleText(node);
             }
-			break;
-	}
+            break;
+    }
 }
 
 function handleText(textNode) {
-	var v = textNode.nodeValue;
+    var v = textNode.nodeValue;
 
-  // Deal with the easy case
-  v = v.replace(/\b(T|t)he (C|c)loud/g, function(match, p1, p2, offset, string) {
-    // t - 7 = m
-    // c - 1 = b
-    m = String.fromCharCode(p1.charCodeAt(0) - 7);
-    b = String.fromCharCode(p2.charCodeAt(0) - 1);
-    return m + "y " + b + "utt";
-  });
+    for (key in substitutions) {
+        var first_letter = key.charAt(0);
+        var rest = key.substring(1);
 
-  // Deal with private clouds
-  v = v.replace(/\b(P|p)rivate (C|c)loud/g, function(match, p1, p2, offset, string) {
-    // c - 1 = b
-    b = String.fromCharCode(p2.charCodeAt(0) - 1);
-    return b + "utt";
-  });
-  // Get the corner cases
-  if(v.match(/cloud/i)) {
-    // If we're not talking about weather
-    if(v.match(/PaaS|SaaS|IaaS|computing|data|storage|cluster|distributed|server|hosting|provider|grid|enterprise|provision|apps|hardware|software|/i)) {
-      v = v.replace(/(C|c)loud/gi, function(match, p1, offset, string) {
-        // c - 1 = b
-        b = String.fromCharCode(p1.charCodeAt(0) - 1);
-        return b + "utt";
-      });
+        v = v.replace(RegExp('\b(' + first_letter.toUpperCase() + '|' + first_letter.toLowerCase() + ')' + rest), function (match, p1, p2, offset, string) {
+            var substitution;
+            if (p1.charAt(0) == p1.charAt(0).toUpperCase()) {
+                //First letter was uppercase
+                substitution = substitutions[key].charAt(0).toUpperCase();
+            } else {
+                substitution = substitutions[key].charAt(0).toLowerCase();
+            }
+
+            substitution += substitutions[key].substring(1);
+
+            return substitution;
+        });
     }
-  }
-	textNode.nodeValue = v;
-}
 
+    textNode.nodeValue = v;
+}
 
